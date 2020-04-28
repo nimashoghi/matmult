@@ -20,6 +20,7 @@ A 3.5x speedup can be achieved by using the 64-bit AXI-Stream interface. This ap
 * [[boards/Pynq-Z1/matmult]](./boards/Pynq-Z1/matmult) contains the Vivado project.
 * [[notebooks]](./notebooks) contains the Jupyter Notebook to evaluate the design. This notebook uses the [Xilinx/PYNQ](https://github.com/Xilinx/PYNQ) Python library.
 * [[overlay]](./overlay) contains the generated hardware files. These files were generated using `vivado` and `vivado_hls` version 2019.2.
+* [[service]](./service) contains code for how to expose matrix multiplication as a [gRPC](https://grpc.io) service and an example client that calls it.
 
 ## Installation
 
@@ -39,6 +40,23 @@ Requires Xilinx `vivado` and `vivado_hls` version 2019.2. If necessary, a differ
     cd boards/Pynq-Z1/matmult
     make clean  && make all
     ```
+
+## Future Work
+
+This is a minimal and naive implementation of matrix multiplication. You can build on top of this and implement various hardware optimizations such as:
+
+* Pipelining (loop unrolling)
+* Memory partioning
+* Fixed-point optimization
+
+These optimizations are talked about in detail [here](https://github.com/uwsampa/cse548-labs).
+
+The gRPC runtime also seems to incur an extremely large (on the order of seconds) latency for some reason. This latency is not due to pickling/unpickling. For the service to be actually useful, this issue must be explored and fixed. 
+
+Once the RPC latency issue is fixed, the service can be deployed to an array of Pynq boards and be used to parallelize matrix computations.
+
+I also encountered a problem trying to run a remote client on the same LAN. Ideally, a remote client should not need to know the internals of the service and just be able to call the service. However, the gRPC runtime tries to the access the pynq module on the remote client, which only exists on the server side. My guess is that this is a problem with how gRPC generates service stubs on the client side.
+
 ## Credits
 
 * This implementation borrows ideas and code from [this application note](https://www.xilinx.com/support/documentation/application_notes/xapp1170-zynq-hls.pdf), and the [PYNQ hello world example](https://github.com/Xilinx/PYNQ-HelloWorld).
