@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+service MatrixOp {
+  rpc MatMult(OpRequest) returns (OpReply) {}
+}
+
+message OpRequest {
+  required bytes a = 1;
+  optional bytes b = 2;
+}
+
+message OpReply {
+  required bytes res = 1;
+}
