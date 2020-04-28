@@ -4,6 +4,7 @@ from pynq import Overlay, Xlnk
 import numpy as np
 import grpc
 import pickle
+import time
 
 import matrix_op_pb2
 import matrix_op_pb2_grpc
@@ -27,11 +28,17 @@ class MatrixOpServicer(matrix_op_pb2_grpc.MatrixOpServicer):
 
     def MatMult(self, request, context):
         print('request received: matrix mult')
+        before = time.time()
         # load np arrays from bytes
         a = pickle.loads(request.a)
         b = pickle.loads(request.b)
 
+        lat = round((time.time() - before) * 1000000, 2)
+        print(f'unpickled data in {lat} microsec')
+
         # run kernel
+        before = time.time()
+
         self.in_buf[:] = np.stack((a, b))
         self.dma.sendchannel.transfer(self.in_buf)
         self.dma.recvchannel.transfer(self.out_buf)
@@ -40,13 +47,19 @@ class MatrixOpServicer(matrix_op_pb2_grpc.MatrixOpServicer):
         self.dma.sendchannel.wait()
         self.dma.recvchannel.wait()
 
-        return matrix_op_pb2.OpReply(res=pickle.dumps(self.out_buf))
+        ret = matrix_op_pb2.OpReply(res=pickle.dumps(self.out_buf))
+
+        lat = round((time.time() - before) * 1000000, 2)
+        print(f'mult done in {lat} microsec')
+
+        return ret
+
         
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
     matrix_op_pb2_grpc.add_MatrixOpServicer_to_server(MatrixOpServicer(), server)
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port('0.0.0.0:50051')
     server.start()
     print('listening at 50051...')
     server.wait_for_termination()
