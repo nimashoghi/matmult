@@ -7,13 +7,29 @@ import time
 import matrix_op_pb2
 import matrix_op_pb2_grpc
 
+class timer(object):
+    def __init__(self, name):
+        self.name = name
+
+    def __enter__(self):
+        self.start = time.time()
+        return self
+
+    def __exit__(self, *args):
+        elapsed_secs = time.time() - self.start
+        elapsed = round(elapsed_secs * 1000000, 2)
+        print('[%s] elapsed time: %f microssec' % (self.name, elapsed))
+
 # handles np array pickling & unpickling
 def matmult(stub, a, b):
     before = time.time()
 
-    message = matrix_op_pb2.OpRequest(a=pickle.dumps(a), b=pickle.dumps(b))
-    reply = stub.MatMult(message)
-    res =  pickle.loads(reply.res)
+    with timer("message request"):
+        message = matrix_op_pb2.OpRequest(a=pickle.dumps(a), b=pickle.dumps(b))
+    with timer("reply"):
+        reply = stub.MatMult(message)
+    with timer("pickle load"):
+        res =  pickle.loads(reply.res)
 
     after = time.time()
     return (res, round(after - before, 2))
