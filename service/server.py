@@ -41,35 +41,36 @@ class MatrixOpServicer(matrix_op_pb2_grpc.MatrixOpServicer):
 
 
     def MatMult(self, request, context):
-        with timer("unpickling"):
-            a = pickle.loads(request.a)
-            b = pickle.loads(request.b)
+        with timer("total"):
+            with timer("unpickling"):
+                a = pickle.loads(request.a)
+                b = pickle.loads(request.b)
 
-        # run kernel
-        with timer("np.stack"):
-            self.in_buf[:] = np.stack((a, b))
+            # run kernel
+            with timer("np.stack"):
+                self.in_buf[:] = np.stack((a, b))
 
-        with timer("channel transfers"):
-            with timer("sendchannel transfer"):
-                self.dma.sendchannel.transfer(self.in_buf)
-            with timer("recvchannel transfer"):
-                self.dma.recvchannel.transfer(self.out_buf)
+            with timer("channel transfers"):
+                with timer("sendchannel transfer"):
+                    self.dma.sendchannel.transfer(self.in_buf)
+                with timer("recvchannel transfer"):
+                    self.dma.recvchannel.transfer(self.out_buf)
 
 
-        with timer("mmult_ip.write"):
-            self.mmult_ip.write(CTRL_REG, (AP_START | AUTO_RESTART))
+            with timer("mmult_ip.write"):
+                self.mmult_ip.write(CTRL_REG, (AP_START | AUTO_RESTART))
 
-        with timer("channel waits"):
-            with timer("sendchannel wait"):
-                self.dma.sendchannel.wait()
+            with timer("channel waits"):
+                with timer("sendchannel wait"):
+                    self.dma.sendchannel.wait()
 
-            with timer("recvchannel wait"):
-                self.dma.recvchannel.wait()
+                with timer("recvchannel wait"):
+                    self.dma.recvchannel.wait()
 
-        with timer("matrix_op_pb2.OpReply"):
-            ret = matrix_op_pb2.OpReply(res=pickle.dumps(np.array(self.out_buf)))
+            with timer("matrix_op_pb2.OpReply"):
+                ret = matrix_op_pb2.OpReply(res=pickle.dumps(np.array(self.out_buf)))
 
-        return ret
+            return ret
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
