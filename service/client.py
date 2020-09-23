@@ -28,6 +28,7 @@ with grpc.insecure_channel(server_addr) as channel:
     stub = matrix_op_pb2_grpc.MatrixOpStub(channel)
 
     a = np.random.rand(1, 1).astype(dtype=np.float32)
+    print(str(a))
     b = np.random.rand(1, 1).astype(dtype=np.float32)
 
     res1 = matmult(stub, a, b)
