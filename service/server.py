@@ -74,7 +74,7 @@ class MatrixOpServicer(matrix_op_pb2_grpc.MatrixOpServicer):
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
-    matrix_op_pb2_grpc.add_MatrixOpServicer_to_server(MatrixOpServicer(), server)
+    # matrix_op_pb2_grpc.add_MatrixOpServicer_to_server(MatrixOpServicer(), server)
     server.add_insecure_port('0.0.0.0:50051')
     server.start()
     print('listening at 50051...')
