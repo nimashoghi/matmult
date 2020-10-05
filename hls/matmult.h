@@ -36,8 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #include <math.h>
 
-#define N 128
-#define SIZE 16384 // N*N
+#define N 1024
+#define SIZE 1048576 // N*N
 
 struct axis_t {
   ap_uint<32> data;

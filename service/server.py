@@ -11,7 +11,7 @@ import matrix_op_pb2_grpc
 
 CTRL_REG = 0x00
 AP_START = 1 << 0
-AUTO_RESTART = 1 << 7
+AUTO_RESTART = 1 << 10
 
 class timer(object):
     def __init__(self, name):
@@ -28,7 +28,7 @@ class timer(object):
 
 
 class MatrixOpServicer(matrix_op_pb2_grpc.MatrixOpServicer):
-    DIM = 128
+    DIM = 1024
 
     def __init__(self):
         self.overlay = Overlay('/home/xilinx/matmult/overlay/matmult/matmult.bit')
