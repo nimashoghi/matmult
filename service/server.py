@@ -72,7 +72,10 @@ class MatrixOpServicer(matrix_op_pb2_grpc.MatrixOpServicer):
         return ret
 
 def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=4), options=[
+        ('grpc.max_send_message_length', 50 * 1024 * 1024),
+        ('grpc.max_receive_message_length', 50 * 1024 * 1024)
+    ])
     matrix_op_pb2_grpc.add_MatrixOpServicer_to_server(MatrixOpServicer(), server)
     server.add_insecure_port('0.0.0.0:50051')
     server.start()
