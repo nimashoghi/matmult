@@ -15,12 +15,11 @@ create_clock -period 10 -name default
 set_clock_uncertainty 27.0%
 
 set_directive_inline "mmult_hw"
-set_directive_pipeline -II 1 "mmult_hw/L2"
 # set_directive_array_partition -type block -factor 16 -dim 2 "mmult_hw" a
 # set_directive_array_partition -type block -factor 16 -dim 1 "mmult_hw" b
 
 # run testbench
-csim_design -clean 
+csim_design -clean
 
 #
 csynth_design

@@ -34,9 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // function to be accelerated in HW
 template <typename T> void mmult_hw(T a[N][N], T b[N][N], T out[N][N]) {
 //a is n x k, b is k x m, out is n x m (all squares of size N)
-L1:
   for (int n = 0; n < N/tileHeight; n++) {
-  L2:
     for (int m = 0; m < N/tileLength; m++) {
       T acc[tileLength][tileHeight];
       for (int i = 0; i < tileHeight; i++) {
