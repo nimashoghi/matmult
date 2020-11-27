@@ -60,7 +60,7 @@ template <typename T> void mmult_hw(T a[N][N], T b[N][N], T out[N][N]) {
       for (int i = 0; i <tileHeight; i++){
         #pragma HLS unroll
         for (int j = 0; j < tileLength; j++) {
-          out[n * tileHeight + i][m * tileLength + j] = acc[i][j];
+          out[n * tileHeight + i][m * tileLength + j] = acc[j][i];
         }
       }
     }
