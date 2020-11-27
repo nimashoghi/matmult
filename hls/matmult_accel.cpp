@@ -33,18 +33,40 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // --------------------------------------------------------
 // function to be accelerated in HW
 template <typename T> void mmult_hw(T a[N][N], T b[N][N], T out[N][N]) {
+//a is n x k, b is k x m, out is n x m (all squares of size N)
 L1:
-  for (int ia = 0; ia < N; ++ia)
+  for (int n = 0; n < N/tileHeight; n++) {
   L2:
-    for (int ib = 0; ib < N; ++ib) {
-      T sum = 0;
-    L3:
-      for (int id = 0; id < N; ++id)
-        sum += a[ia][id] * b[id][ib];
-      out[ia][ib] = sum;
+    for (int m = 0; m < N/tileLength; m++) {
+      T acc[tileLength][tileHeight];
+      for (int i = 0; i < tileHeight; i++) {
+        #pragma HLS unroll
+        for (int j = 0; j < tileLength; j++) {
+          acc[i][j] = 0;
+        }
+      }
+      for (int k = 0; k < N; ++k){
+        T a_buffer[tileHeight];
+        #pragma HLS pipeline
+        for (int p = 0; p < tileHeight; p++) {
+          a_buffer[p] = a[n * tileHeight + p][k];
+        }
+        #pragma HLS pipeline
+        for (int t = 0; t < tileLength; t++) {
+          #pragma HLS unroll
+          for (int p = 0; p < tileHeight; p++) {
+            acc[t][p] += a_buffer[p] * b[k][m * tileLength + t];
+          }
+        }
+      }
+      for (int i = 0; i <tileHeight; i++){
+        #pragma HLS unroll
+        for (int j = 0; j < tileLength; j++) {
+          out[n * tileHeight + i][m * tileLength + j] = acc[i][j];
+        }
+      }
     }
-
-  return;
+  }
 }
 
 template <typename T> void axis2Mat(axis_t *src, T A[N][N], T B[N][N]) {

@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define N 128
 #define SIZE 16384 // N*N
+#define tileLength 4
+#define tileHeight 4
 
 struct axis_t {
   ap_uint<32> data;
