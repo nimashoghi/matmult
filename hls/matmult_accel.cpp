@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template <typename T> void mmult_hw(T a[N][N], T b[N][N], T out[N][N]) {
 //a is n x k, b is k x m, out is n x m (all squares of size N)
   for (int n = 0; n < N/tileHeight; n++) {
-    #pragma HLS pipeline
     for (int m = 0; m < N/tileLength; m++) {
       #pragma HLS pipeline
       T acc[tileLength][tileHeight];
@@ -53,7 +52,7 @@ template <typename T> void mmult_hw(T a[N][N], T b[N][N], T out[N][N]) {
           #pragma HLS unroll
           a_buffer[p] = a[n * tileHeight + p][k];
         }
-        
+
         for (int t = 0; t < tileLength; t++) {
           #pragma HLS unroll
           for (int p = 0; p < tileHeight; p++) {
